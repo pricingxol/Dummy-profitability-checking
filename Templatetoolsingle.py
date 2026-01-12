@@ -236,6 +236,22 @@ def calc(row):
     }
 
 # =====================================================
+# HELPER UNTUK PDF (HEADER & FORMAT)
+# =====================================================
+from reportlab.lib.styles import getSampleStyleSheet
+
+def format_header(col):
+    return Paragraph(
+        col.replace("_", "<br/>"),
+        getSampleStyleSheet()["BodyText"]
+    )
+
+def fmt(x):
+    if isinstance(x, (int, float)):
+        return f"{x:,.0f}"
+    return x
+
+# =====================================================
 # PDF GENERATOR (LANDSCAPE)
 # =====================================================
 def generate_pdf(df):
@@ -258,8 +274,14 @@ def generate_pdf(df):
     elements.append(Spacer(1, 12))
 
     elements.append(Paragraph(f"Nama Tertanggung : {nama_tertanggung}", styles["Normal"]))
-    elements.append(Paragraph(f"Start Date : {start_date}", styles["Normal"]))
-    elements.append(Paragraph(f"End Date : {end_date}", styles["Normal"]))
+    elements.append(Paragraph(
+    f"Start Date : {start_date.strftime('%d/%m/%Y')}",
+    styles["Normal"]
+    ))
+    elements.append(Paragraph(
+        f"End Date : {end_date.strftime('%d/%m/%Y')}",
+        styles["Normal"]
+    ))
     elements.append(Spacer(1, 12))
 
     elements.append(Paragraph("<b>Asumsi Digunakan</b>", styles["Heading2"]))
@@ -268,7 +290,10 @@ def generate_pdf(df):
     elements.append(Paragraph(f"Expense Ratio : {EXP_RATIO:.2%}", styles["Normal"]))
     elements.append(Spacer(1, 12))
 
-    table_data = [df.columns.tolist()] + df.round(2).values.tolist()
+    header = [format_header(c) for c in df.columns]
+    body = df.round(2).values.tolist()
+    table_data = [header] + body
+
 
     # ===============================
     # AUTO-FIT TABLE WIDTH
@@ -298,8 +323,8 @@ def generate_pdf(df):
     elements.append(Spacer(1, 24))
 
     elements.append(Paragraph(
-        f"Tanggal Export : {date.today()}",
-        styles["Normal"]
+    f"Tanggal Export : {date.today().strftime('%d/%m/%Y')}",
+    styles["Normal"]
     ))
     elements.append(Paragraph(
         f"Disusun oleh,<br/>{user_name}",
