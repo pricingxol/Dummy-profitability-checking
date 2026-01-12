@@ -80,7 +80,7 @@ def add_row():
     st.session_state.rows.append(len(st.session_state.rows))
 
 def del_row(i):
-    st.session_state.rows.pop(i)
+    st.session_state.rows = [r for r in st.session_state.rows if r != i]
 
 st.subheader("📋 Input Coverage")
 
@@ -335,7 +335,7 @@ if st.button("🚀 Calculate"):
             + ". Shortfall telah tercermin dalam premi dan hasil profitabilitas sebagai bagian dari risiko net Askrindo."
         )
 
-     pdf = generate_pdf(df)
+    pdf = generate_pdf(df)
 
     st.download_button(
         "📄 Export PDF",
