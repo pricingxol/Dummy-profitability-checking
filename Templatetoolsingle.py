@@ -8,7 +8,6 @@ import io
 # =====================================================
 st.set_page_config(
     page_title="Profitability Checking – Asuransi Umum",
-    page_icon="askrindo.png",
     layout="wide"
 )
 
