@@ -248,6 +248,14 @@ header_style = ParagraphStyle(
     alignment=1  # CENTER
 )
 
+subtitle_style = ParagraphStyle(
+    name="Subtitle",
+    fontName="Helvetica",
+    fontSize=11,
+    leading=14,
+    alignment=1  # CENTER
+)
+
 def format_header(col):
     return Paragraph(
         col.replace("_", "<br/>"),
@@ -279,7 +287,14 @@ def generate_pdf(df):
         "<b>Profitability Checking Asuransi Umum</b>",
         styles["Title"]
     ))
-    elements.append(Spacer(1, 12))
+
+    elements.append(Paragraph(
+        "PT Asuransi Kredit Indonesia",
+        subtitle_style
+    ))
+
+    elements.append(Spacer(1, 16))
+
 
     elements.append(Paragraph(f"Nama Tertanggung : {nama_tertanggung}", styles["Normal"]))
     elements.append(Paragraph(
