@@ -301,13 +301,13 @@ def generate_pdf(df):
     header = [format_header(c) for c in df.columns]
     body = []
     for _, row in df.iterrows():
-    formatted_row = []
-    for col, val in row.items():
-        if col == "%Result":
-            formatted_row.append(f"{val:.2%}")
-        else:
-            formatted_row.append(fmt(val))
-    body.append(formatted_row)
+        formatted_row = []
+        for col, val in row.items():
+            if col == "%Result":
+                formatted_row.append(f"{val:.2%}")
+            else:
+                formatted_row.append(fmt(val))
+        body.append(formatted_row)
 
     table_data = [header] + body
 
