@@ -291,8 +291,9 @@ def generate_pdf(df):
     elements.append(Spacer(1, 12))
 
     header = [format_header(c) for c in df.columns]
-    body = df.round(2).values.tolist()
+    body = df.applymap(fmt).values.tolist()
     table_data = [header] + body
+
 
 
     # ===============================
