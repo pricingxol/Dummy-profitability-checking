@@ -2,6 +2,14 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import io
+from datetime import date
+
+from reportlab.platypus import (
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+)
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib import colors
 
 # =====================================================
 # PAGE CONFIG
@@ -13,6 +21,25 @@ st.set_page_config(
 
 st.title("📊 Profitability Checking – Asuransi Umum")
 st.caption("by Divisi Aktuaria Askrindo")
+
+# =====================================================
+# INPUT INFORMASI POLIS
+# =====================================================
+st.subheader("📝 Informasi Polis")
+
+cA, cB, cC, cD = st.columns(4)
+
+with cA:
+    nama_tertanggung = st.text_input("Nama Tertanggung")
+
+with cB:
+    start_date = st.date_input("Start Date")
+
+with cC:
+    end_date = st.date_input("End Date")
+
+with cD:
+    user_name = st.text_input("User")
 
 # =====================================================
 # LOAD MASTER EXCEL
@@ -209,6 +236,65 @@ def calc(row):
     }
 
 # =====================================================
+# PDF GENERATOR (LANDSCAPE)
+# =====================================================
+def generate_pdf(df):
+    buffer = io.BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        rightMargin=30, leftMargin=30,
+        topMargin=30, bottomMargin=30
+    )
+
+    styles = getSampleStyleSheet()
+    elements = []
+
+    elements.append(Paragraph(
+        "<b>Profitability Checking Asuransi Umum</b>",
+        styles["Title"]
+    ))
+    elements.append(Spacer(1, 12))
+
+    elements.append(Paragraph(f"Nama Tertanggung : {nama_tertanggung}", styles["Normal"]))
+    elements.append(Paragraph(f"Start Date : {start_date}", styles["Normal"]))
+    elements.append(Paragraph(f"End Date : {end_date}", styles["Normal"]))
+    elements.append(Spacer(1, 12))
+
+    elements.append(Paragraph("<b>Asumsi Digunakan</b>", styles["Heading2"]))
+    elements.append(Paragraph(f"Asumsi Loss Ratio : {LOSS_RATIO:.2%}", styles["Normal"]))
+    elements.append(Paragraph(f"Premi XOL (%) : {XOL_RATE:.2%}", styles["Normal"]))
+    elements.append(Paragraph(f"Expense Ratio : {EXP_RATIO:.2%}", styles["Normal"]))
+    elements.append(Spacer(1, 12))
+
+    table_data = [df.columns.tolist()] + df.round(2).values.tolist()
+
+    table = Table(table_data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+    ]))
+
+    elements.append(table)
+    elements.append(Spacer(1, 24))
+
+    elements.append(Paragraph(
+        f"Tanggal Export : {date.today()}",
+        styles["Normal"]
+    ))
+    elements.append(Paragraph(
+        f"Disusun oleh,<br/>{user_name}",
+        styles["Normal"]
+    ))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+# =====================================================
 # RUN
 # =====================================================
 if st.button("🚀 Calculate"):
@@ -248,3 +334,12 @@ if st.button("🚀 Calculate"):
             + ", ".join(sf_cov)
             + ". Shortfall telah tercermin dalam premi dan hasil profitabilitas sebagai bagian dari risiko net Askrindo."
         )
+
+     pdf = generate_pdf(df)
+
+    st.download_button(
+        "📄 Export PDF",
+        pdf,
+        file_name="Profitability_Checking_Asuransi_Umum.pdf",
+        mime="application/pdf"
+    )
