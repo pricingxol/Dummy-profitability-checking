@@ -238,12 +238,20 @@ def calc(row):
 # =====================================================
 # HELPER UNTUK PDF (HEADER & FORMAT)
 # =====================================================
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import ParagraphStyle
+
+header_style = ParagraphStyle(
+    name="TableHeader",
+    fontName="Helvetica-Bold",
+    fontSize=8,
+    leading=10,
+    alignment=1  # CENTER
+)
 
 def format_header(col):
     return Paragraph(
         col.replace("_", "<br/>"),
-        getSampleStyleSheet()["BodyText"]
+        header_style
     )
 
 def fmt(x):
@@ -312,12 +320,23 @@ def generate_pdf(df):
     table.setStyle(TableStyle([
     ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
     ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+
+    # HEADER
+    ("ALIGN", (0,0), (-1,0), "CENTER"),
+    ("VALIGN", (0,0), (-1,0), "MIDDLE"),
+
+    # BODY
     ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+
+    # FONT
     ("FONTSIZE", (0,0), (-1,-1), 8),
     ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
     ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
+
+    # TOTAL ROW
     ("BACKGROUND", (0,-1), (-1,-1), colors.whitesmoke),
     ]))
+
 
 
     elements.append(table)
