@@ -270,13 +270,29 @@ def generate_pdf(df):
 
     table_data = [df.columns.tolist()] + df.round(2).values.tolist()
 
-    table = Table(table_data, repeatRows=1)
+    # ===============================
+    # AUTO-FIT TABLE WIDTH
+    # ===============================
+    page_width, _ = landscape(A4)
+    usable_width = page_width - 60   # 30 left + 30 right margin
+    n_cols = len(df.columns)
+    col_widths = [usable_width / n_cols] * n_cols
+    
+    table = Table(
+        table_data,
+        colWidths=col_widths,
+        repeatRows=1
+    )
     table.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+    ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
+    ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+    ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+    ("FONTSIZE", (0,0), (-1,-1), 8),
+    ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+    ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
+    ("BACKGROUND", (0,-1), (-1,-1), colors.whitesmoke),
     ]))
+
 
     elements.append(table)
     elements.append(Spacer(1, 24))
